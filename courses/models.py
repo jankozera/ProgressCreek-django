@@ -5,6 +5,7 @@ from profiles.models import Employee
 
 User = get_user_model()
 
+
 class Course(models.Model):
     name = models.CharField(max_length=128)
     avatar = models.ImageField(upload_to="uploads")
@@ -12,13 +13,13 @@ class Course(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class CourseProgression(models.Model):
     user = models.ForeignKey(Employee, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     progress = models.FloatField()
-    
+
 
 class Lesson(models.Model):
     name = models.CharField(max_length=256)
@@ -34,7 +35,7 @@ class ReadingLesson(Lesson):
 
 
 class VideoLesson(Lesson):
-    youtube_link = models.CharField()
+    youtube_link = models.CharField(max_length=256)
 
 
 class Quiz(models.Model):

@@ -1,6 +1,5 @@
 from django.db import models
 
-
 BASIC = "basic"
 PRO = "pro"
 EXPERT = "expert"
@@ -13,10 +12,7 @@ SUBSCRIPTION_TYPES = (
 
 
 class SubscriptionType(models.Model):
-    type = models.CharField(
-        max_length=150,
-        choices=SUBSCRIPTION_TYPES
-    )
+    type = models.CharField(max_length=150, choices=SUBSCRIPTION_TYPES)
     employees_limit = models.IntegerField()
     price = models.FloatField()
 

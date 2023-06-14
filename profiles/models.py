@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -40,18 +42,26 @@ class User(AbstractUser):
     username = None
     email = LowercaseEmailField(_("email address"), unique=True)
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["birth_date", "phone"]
     objects = CustomUserManager()
     birth_date = models.DateField()
-    age = models.IntegerField()
     phone = models.CharField(max_length=20)
+
+    @property
+    def age(self):
+        today = date.today()
+        return (
+            today.year
+            - self.birth_date.year
+            - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+        )
 
     def __str__(self):
         return self.email
-    
+
 
 class Company(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     nip = models.CharField(max_length=15)
     city = models.CharField(max_length=64)
@@ -61,21 +71,20 @@ class Company(models.Model):
 
     def __str__(self):
         return f"Company: {self.name}"
-    
+
 
 class CompanySubscription(models.Model):
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField
-    
+
 
 class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     position = models.CharField(max_length=64)
     points = models.IntegerField()
 
     def __str__(self):
         return f"Employee: {self.name}"
-

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Rest framework
     "rest_framework",
+    "django_filters",
     # Apps
     "profiles",
     "courses",
@@ -149,18 +150,12 @@ AUTH_CLASSES = (
 )
 
 if not DEBUG:
-    AUTH_CLASSES = (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    AUTH_CLASSES = ("rest_framework_simplejwt.authentication.JWTAuthentication",)
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSIONS_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
+    "DEFAULT_PERMISSIONS_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": AUTH_CLASSES,
-    "DEFAULT_FILTER_BACKENDS": (
-        "django_filters.rest_framework.DjangoFilterBackend",
-    ),
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
 }
