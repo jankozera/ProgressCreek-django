@@ -1,0 +1,22 @@
+version: "3"
+services:
+  database:
+    image: "postgres"
+    env_file:
+      - .env
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+  web:
+    env_file: 
+      - .env
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    build: .
+    depends_on:
+      - database
+
+volumes:
+  database-data:
