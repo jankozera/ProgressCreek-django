@@ -1,0 +1,3 @@
+Hello {{email}},
+You have been invited to ProgressCreek platform. Join organisation: {{organisation.company_name}} and start learning!
+{{url}}{{token}}

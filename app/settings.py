@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     # Apps
     "profiles",
     "courses",
-    "reviews",
     "subscriptions",
     # Needs to be last
     "corsheaders",
