@@ -91,3 +91,64 @@ class AddReviewSerializer(serializers.ModelSerializer):
             "review",
             "course",
         ]
+
+
+class EmployeeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+        ]
+
+
+class CurrentUserCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = [
+            "id",
+            "name",
+            "nip",
+            "city",
+            "postal_code",
+            "street",
+            "street_number",
+        ]
+
+
+class CurrentUserEmployeeSerializer(serializers.ModelSerializer):
+    employees = serializers.SerializerMethodField()
+
+    def get_employess(self, obj):
+        employees = obj.show_employees()
+        serializer = EmployeeUserSerializer(employees, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Employee
+        fields = [
+            "id",
+            "position",
+            "points",
+            "employees",
+        ]
+
+
+class CurrentUserSerializer(serializers.ModelSerializer):
+    company = CurrentUserCompanySerializer(read_only=True)
+    employee = CurrentUserEmployeeSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "birth_date",
+            "phone",
+            "company",
+            "employee",
+        ]

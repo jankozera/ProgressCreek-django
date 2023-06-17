@@ -6,6 +6,7 @@ class Course(models.Model):
     avatar = models.ImageField(upload_to="uploads")
     description = models.TextField()
 
+    @classmethod
     def get_all_courses(self):
         return Course.objects.all()
 

@@ -7,6 +7,7 @@ from courses.models import Course
 from profiles.models import Company
 from profiles.serializers import (
     AddReviewSerializer,
+    CurrentUserSerializer,
     InviteUserSerializer,
     LoginSerializer,
     RegisterUserSerializer,
@@ -156,3 +157,15 @@ class InviteUserView(APIView):
             company.invite_user(**serializer.validated_data)
             return Response(status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CurrentUserView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        serializer = CurrentUserSerializer(user, context={"request": self.request})
+
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
