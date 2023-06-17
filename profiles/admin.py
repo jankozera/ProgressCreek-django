@@ -3,6 +3,7 @@ from django.contrib import admin
 from profiles.models import (
     Company,
     CompanySubscription,
+    CompletedLesson,
     CourseProgression,
     Employee,
     Review,
@@ -17,3 +18,4 @@ admin.site.register(Employee)
 admin.site.register(CourseProgression)
 admin.site.register(Review)
 admin.site.register(UserAnswer)
+admin.site.register(CompletedLesson)

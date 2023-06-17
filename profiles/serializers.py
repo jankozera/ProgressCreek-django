@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from courses.models import Course
-from profiles.models import Company, Employee, Review
+from courses.models import Course, ReadingLesson, VideoLesson
+from profiles.models import Company, CompanySubscription, Employee, Review
 
 User = get_user_model()
 
@@ -139,6 +139,26 @@ class CurrentUserEmployeeSerializer(serializers.ModelSerializer):
 class CurrentUserSerializer(serializers.ModelSerializer):
     company = CurrentUserCompanySerializer(read_only=True)
     employee = CurrentUserEmployeeSerializer(read_only=True)
+    subscription = serializers.SerializerMethodField()
+
+    def get_subscription(self, obj):
+        subscription = False
+        company = Company.objects.filter(user=obj).first()
+        if company is not None:
+            company_sub = CompanySubscription.objects.filter(company=company).first()
+            if company_sub is not None:
+                if company_sub.active:
+                    subscription = True
+        employee = Employee.objects.filter(user=obj).first()
+        if employee is not None:
+            emp_company_sub = CompanySubscription.objects.filter(
+                company=employee.company
+            ).first()
+            if emp_company_sub is not None:
+                if emp_company_sub.active:
+                    subscription = True
+
+        return subscription
 
     class Meta:
         model = User
@@ -151,4 +171,30 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             "phone",
             "company",
             "employee",
+            "subscription",
         ]
+
+
+class ReviewListSerializer(serializers.ModelSerializer):
+    user = EmployeeUserSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            "user",
+            "review",
+            "rate",
+        ]
+
+
+class CheckCourseProgressionSerializer(serializers.Serializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+
+
+class CompleteLessonSerializer(serializers.Serializer):
+    reading = serializers.PrimaryKeyRelatedField(
+        queryset=ReadingLesson.objects.all(), required=False
+    )
+    video = serializers.PrimaryKeyRelatedField(
+        queryset=VideoLesson.objects.all(), required=False
+    )

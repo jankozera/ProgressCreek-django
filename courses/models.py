@@ -18,6 +18,7 @@ class Lesson(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True

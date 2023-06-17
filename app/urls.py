@@ -31,6 +31,21 @@ urlpatterns = (
             courses.views.CourseListView.as_view(),
             name="courses_list",
         ),
+        path(
+            "api/courses/<int:course_id>/",
+            courses.views.CourseRetrieveView.as_view(),
+            name="course_retrieve",
+        ),
+        path(
+            "api/check-progression/",
+            profiles.views.CheckCourseProgressionView.as_view(),
+            name="check_progression",
+        ),
+        path(
+            "api/complete-lesson/",
+            profiles.views.CompleteLessonView.as_view(),
+            name="complete_lesson",
+        ),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,8 +2,13 @@ from django.contrib import admin
 
 from courses.models import Course, Question, Quiz, ReadingLesson, VideoLesson
 
-admin.site.register(Course)
-admin.site.register(ReadingLesson)
-admin.site.register(VideoLesson)
-admin.site.register(Quiz)
-admin.site.register(Question)
+
+class SaveAsAdmin(admin.ModelAdmin):
+    save_as = True
+
+
+admin.site.register(Course, SaveAsAdmin)
+admin.site.register(ReadingLesson, SaveAsAdmin)
+admin.site.register(VideoLesson, SaveAsAdmin)
+admin.site.register(Quiz, SaveAsAdmin)
+admin.site.register(Question, SaveAsAdmin)

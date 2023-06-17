@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from app.utils import random_string_generator
-from courses.models import Course, Lesson, Question
+from courses.models import Course, Lesson, Question, ReadingLesson, VideoLesson
 from profiles.email_service import UserMailService
 from subscriptions.models import Subscription
 
@@ -175,16 +175,20 @@ class Employee(models.Model):
         ).first()
         return course_progression.progress if course_progression else 0
 
-    def take_lesson(self, lesson):
-        course = lesson.course
-        total_lessons = Lesson.objects.filter(course=course).count()
+    def take_lesson(self, reading, video):
+        course = None
+        if reading is not None:
+            course = reading.course
+            CompletedLesson.objects.update_or_create(user=self, reading=reading)
+        if video is not None:
+            course = video.course
+            CompletedLesson.objects.update_or_create(user=self, video=video)
 
-        completed_lessons = (
-            Lesson.objects.filter(
-                courseprogression__user=self, courseprogression__course=course
-            ).count()
-            + 1
-        )
+        total_reading = ReadingLesson.objects.filter(course=course).count()
+        total_video = VideoLesson.objects.filter(course=course).count()
+        total_lessons = total_reading + total_video
+
+        completed_lessons = CompletedLesson.objects.filter(user=self).count()
 
         progress = (completed_lessons / total_lessons) * 100
         CourseProgression.objects.update_or_create(
@@ -209,6 +213,16 @@ class CourseProgression(models.Model):
 
     def __str__(self):
         return f"Course Progression: {self.user}, {self.course}, {self.progress}"
+
+
+class CompletedLesson(models.Model):
+    user = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    reading = models.ForeignKey(
+        ReadingLesson, blank=True, null=True, on_delete=models.CASCADE
+    )
+    video = models.ForeignKey(
+        VideoLesson, blank=True, null=True, on_delete=models.CASCADE
+    )
 
 
 class UserAnswer(models.Model):

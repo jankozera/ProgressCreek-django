@@ -4,9 +4,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from courses.models import Course
-from profiles.models import Company
+from profiles.models import Company, Employee
 from profiles.serializers import (
     AddReviewSerializer,
+    CheckCourseProgressionSerializer,
+    CompleteLessonSerializer,
     CurrentUserSerializer,
     InviteUserSerializer,
     LoginSerializer,
@@ -169,3 +171,63 @@ class CurrentUserView(APIView):
         serializer = CurrentUserSerializer(user, context={"request": self.request})
 
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class CheckCourseProgressionView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = CheckCourseProgressionSerializer(data=request.data)
+        if serializer.is_valid():
+            course = serializer.validated_data["course"]
+            if course is None:
+                return Response(
+                    {"error": "Course does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            employee = Employee.objects.filter(user=user).first()
+            if employee is None:
+                return Response(
+                    {"error": "You don't have employee account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            return Response(
+                status=status.HTTP_200_OK,
+                data={"progression": employee.show_course_progression(course)},
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompleteLessonView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = CompleteLessonSerializer(data=request.data)
+        if serializer.is_valid():
+            reading = (
+                serializer.validated_data["reading"]
+                if "reading" in serializer.validated_data
+                else None
+            )
+            video = (
+                serializer.validated_data["video"]
+                if "video" in serializer.validated_data
+                else None
+            )
+            employee = Employee.objects.filter(user=user).first()
+            if employee is None:
+                return Response(
+                    {"error": "You don't have employee account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            employee.take_lesson(reading, video)
+            return Response(status=status.HTTP_200_OK, data="Lesson completed.")
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
