@@ -37,6 +37,11 @@ urlpatterns = (
             name="course_retrieve",
         ),
         path(
+            "api/courses/<int:course_id>/quiz/",
+            courses.views.QuizRetrieveView.as_view(),
+            name="quiz_retrieve",
+        ),
+        path(
             "api/check-progression/",
             profiles.views.CheckCourseProgressionView.as_view(),
             name="check_progression",

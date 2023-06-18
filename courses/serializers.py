@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from courses.models import Course, ReadingLesson, VideoLesson
+from courses.models import Course, Question, Quiz, ReadingLesson, VideoLesson
 from profiles.models import CompletedLesson, Employee, Review
 from profiles.serializers import ReviewListSerializer
 
@@ -106,4 +106,30 @@ class CourseRetrieveSerializer(serializers.ModelSerializer):
             "rating",
             "lessons",
             "reviews",
+        ]
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ["id", "content"]
+
+
+class QuizRetrieveSerializer(serializers.ModelSerializer):
+    questions = serializers.SerializerMethodField()
+
+    def get_questions(self, obj):
+        questions = Question.objects.filter(quiz=obj)
+        serializer = QuestionSerializer(questions, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Quiz
+        fields = [
+            "id",
+            "course",
+            "title",
+            "description",
+            "min_correct_answers",
+            "questions",
         ]
