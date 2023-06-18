@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from courses.models import Course
-from profiles.models import Company, Employee
+from profiles.models import Company, Employee, UserAnswer
 from profiles.serializers import (
     AddReviewSerializer,
     CheckCourseProgressionSerializer,
@@ -12,6 +12,7 @@ from profiles.serializers import (
     CurrentUserSerializer,
     InviteUserSerializer,
     LoginSerializer,
+    QuizSubmitSerializer,
     RegisterUserSerializer,
     UpdateCompanySerializer,
     UpdateUserSerializer,
@@ -229,5 +230,37 @@ class CompleteLessonView(APIView):
                 )
             employee.take_lesson(reading, video)
             return Response(status=status.HTTP_200_OK, data="Lesson completed.")
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompleteQuizView(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = QuizSubmitSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            employee = Employee.objects.filter(user=user).first()
+            if employee is None:
+                return Response(
+                    {"error": "You don't have employee account"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            points = employee.solve_quiz(serializer.validated_data)
+            new_total_points = 0
+            all_answers = UserAnswer.objects.filter(user=employee)
+            for a in all_answers:
+                if a.correct:
+                    new_total_points += 1
+            employee.points = new_total_points
+            employee.save()
+
+            return Response(
+                status=status.HTTP_200_OK,
+                data=f"Quiz completed, score: {points}, total points: {employee.points}",
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

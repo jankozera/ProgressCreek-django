@@ -51,6 +51,11 @@ urlpatterns = (
             profiles.views.CompleteLessonView.as_view(),
             name="complete_lesson",
         ),
+        path(
+            "api/complete-quiz/",
+            profiles.views.CompleteQuizView.as_view(),
+            name="complete_quiz",
+        ),
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

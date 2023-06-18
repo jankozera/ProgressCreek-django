@@ -195,12 +195,17 @@ class Employee(models.Model):
             user=self, course=course, defaults={"progress": progress}
         )
 
-    def solve_quiz(self, quiz, user_answers):
-        for question_id, user_answer in user_answers.items():
-            question = Question.objects.get(id=question_id)
+    def solve_quiz(self, user_answers):
+        correct_answers = 0
+        for user_answer in user_answers:
+            question = user_answer["question"]
+            answer = user_answer["answer"]
             UserAnswer.objects.update_or_create(
-                user=self, question=question, defaults={"answer": user_answer}
+                user=self, question=question, defaults={"answer": answer}
             )
+            if UserAnswer.objects.get(user=self, question=question.id).correct:
+                correct_answers += 1
+        return correct_answers
 
     def __str__(self):
         return f"Employee: {self.user.first_name}"
@@ -229,6 +234,10 @@ class UserAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(Employee, on_delete=models.CASCADE)
     answer = models.BooleanField()
+
+    @property
+    def correct(self):
+        return True if self.answer == self.question.is_correct else False
 
     def __str__(self):
         return f"User answer: {self.user}, {self.question}, {self.answer}"

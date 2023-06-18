@@ -2,7 +2,13 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from courses.models import Course, ReadingLesson, VideoLesson
-from profiles.models import Company, CompanySubscription, Employee, Review
+from profiles.models import (
+    Company,
+    CompanySubscription,
+    Employee,
+    Review,
+    UserAnswer,
+)
 
 User = get_user_model()
 
@@ -198,3 +204,12 @@ class CompleteLessonSerializer(serializers.Serializer):
     video = serializers.PrimaryKeyRelatedField(
         queryset=VideoLesson.objects.all(), required=False
     )
+
+
+class QuizSubmitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAnswer
+        fields = [
+            "question",
+            "answer",
+        ]
