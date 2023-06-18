@@ -156,6 +156,9 @@ class CompanySubscription(models.Model):
     def active(self):
         return (timezone.now() - self.date).days < 365
 
+    def __str__(self):
+        return f"Subscription: {self.subscription} for company: {self.company}"
+
 
 class Employee(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
