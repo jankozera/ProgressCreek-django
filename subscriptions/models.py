@@ -16,7 +16,13 @@ class SubscriptionType(models.Model):
     employees_limit = models.IntegerField()
     price = models.FloatField()
 
+    def __str__(self):
+        return f"{self.type}, limit: {self.employees_limit}, price: {self.price}"
+
 
 class Subscription(models.Model):
     type = models.OneToOneField(SubscriptionType, on_delete=models.CASCADE)
     duration = 365
+
+    def __str__(self):
+        return f"{self.type}"

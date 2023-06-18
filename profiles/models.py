@@ -179,16 +179,22 @@ class Employee(models.Model):
         course = None
         if reading is not None:
             course = reading.course
-            CompletedLesson.objects.update_or_create(user=self, reading=reading)
+            CompletedLesson.objects.update_or_create(
+                user=self, course=course, reading=reading
+            )
         if video is not None:
             course = video.course
-            CompletedLesson.objects.update_or_create(user=self, video=video)
+            CompletedLesson.objects.update_or_create(
+                user=self, course=course, video=video
+            )
 
         total_reading = ReadingLesson.objects.filter(course=course).count()
         total_video = VideoLesson.objects.filter(course=course).count()
         total_lessons = total_reading + total_video
 
-        completed_lessons = CompletedLesson.objects.filter(user=self).count()
+        completed_lessons = CompletedLesson.objects.filter(
+            user=self, course=course
+        ).count()
 
         progress = (completed_lessons / total_lessons) * 100
         CourseProgression.objects.update_or_create(
@@ -222,6 +228,7 @@ class CourseProgression(models.Model):
 
 class CompletedLesson(models.Model):
     user = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     reading = models.ForeignKey(
         ReadingLesson, blank=True, null=True, on_delete=models.CASCADE
     )
