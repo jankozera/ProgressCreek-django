@@ -260,7 +260,7 @@ class CompleteQuizView(APIView):
 
             return Response(
                 status=status.HTTP_200_OK,
-                data=f"Quiz completed, score: {points}, total points: {employee.points}",
+                data={"points": points, "total_points": employee.points},
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
