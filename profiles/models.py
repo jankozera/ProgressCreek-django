@@ -1,10 +1,10 @@
-import datetime
 from datetime import date
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models, transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -154,7 +154,7 @@ class CompanySubscription(models.Model):
 
     @property
     def active(self):
-        return (datetime.now() - self.date).days < 365
+        return (timezone.now() - self.date).days < 365
 
 
 class Employee(models.Model):
